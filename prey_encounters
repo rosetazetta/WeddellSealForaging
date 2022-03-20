@@ -1,0 +1,694 @@
+#prey times
+
+#add prey time points 
+#Get from boris - all exported event data is in "EventData" and then "All_events" then 
+#each separated by seal ID
+
+#### 1813#### 
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1813 <- read.table("1813.csv", sep = ",", dec = ".", skip = 22)
+#now to select all eating events out of data set must subset V6 column to get 
+#just eating, column V8 is modifiers eg prey type
+events_1813_eat <- subset(events_1813, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1813_eat)[names(events_1813_eat) == "V1"] <- "Seconds"
+names(events_1813_eat)[names(events_1813_eat) == "V8"] <- "Prey"
+events_1813_eat
+
+#time currently in seconds - datetime
+library(lubridate)
+?as.POSIXct
+start_1813 <- as.POSIXct("21/11/2018 12:31:08", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1813 <- data.frame(start_1813 + seconds(events_1813_eat$Seconds))
+names(eat_times_1813) <- c("Time")
+eat_times_1813
+pred_1813 <- cbind(events_1813_eat, eat_times_1813)
+
+write.csv(pred_1813, "D:/WEDE ANALYSIS/WESE_chapter2/predation_1813.csv")
+#now repeat for all successful foragers
+
+####1817####
+
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1817 <- read.table("1817.csv", sep = ",", dec = ".", skip = 22)
+events_1817_eat <- subset(events_1817, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1817_eat)[names(events_1817_eat) == "V1"] <- "Seconds"
+names(events_1817_eat)[names(events_1817_eat) == "V8"] <- "Prey"
+events_1817_eat
+
+#sort time
+library(lubridate)
+start_1817 <- as.POSIXct("29/11/2018 12:33:14", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1817 <- data.frame(start_1817 + seconds(events_1817_eat$Seconds))
+names(eat_times_1817) <- c("Time")
+eat_times_1817
+pred_1817 <- cbind(events_1817_eat, eat_times_1817)
+
+####1819####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1819 <- read.table("1819.csv", sep = ",", dec = ".", skip = 22)
+events_1819_eat <- subset(events_1819, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1819_eat)[names(events_1819_eat) == "V1"] <- "Seconds"
+names(events_1819_eat)[names(events_1819_eat) == "V8"] <- "Prey"
+events_1819_eat
+
+#sort time
+library(lubridate)
+start_1819 <- as.POSIXct("29/11/2018 12:40:30", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1819 <- data.frame(start_1819 + seconds(events_1819_eat$Seconds))
+names(eat_times_1819) <- c("Time")
+pred_1819 <- cbind(events_1819_eat, eat_times_1819)
+
+####1930####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1930 <- read.table("1930.csv", sep = ",", dec = ".", skip = 22)
+events_1930_eat <- subset(events_1930, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1930_eat)[names(events_1930_eat) == "V1"] <- "Seconds"
+names(events_1930_eat)[names(events_1930_eat) == "V8"] <- "Prey"
+events_1930_eat
+
+#sort time
+library(lubridate)
+start_1930 <- as.POSIXct("21/11/2019 18:48:12", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1930 <- data.frame(start_1930 + seconds(events_1930_eat$Seconds))
+names(eat_times_1930) <- c("Time")
+pred_1930 <- cbind(events_1930_eat, eat_times_1930)
+
+####1939####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1939 <- read.table("1939.csv", sep = ",", dec = ".", skip = 22)
+events_1939_eat <- subset(events_1939, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1939_eat)[names(events_1939_eat) == "V1"] <- "Seconds"
+names(events_1939_eat)[names(events_1939_eat) == "V8"] <- "Prey"
+events_1939_eat
+
+#sort time
+library(lubridate)
+start_1939 <- as.POSIXct("3/12/2019 13:28:00", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1939 <- data.frame(start_1939 + seconds(events_1939_eat$Seconds))
+names(eat_times_1939) <- c("Time")
+pred_1939 <- cbind(events_1939_eat, eat_times_1939)
+
+####1940####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1940 <- read.table("1940.csv", sep = ",", dec = ".", skip = 22)
+events_1940_eat <- subset(events_1940, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1940_eat)[names(events_1940_eat) == "V1"] <- "Seconds"
+names(events_1940_eat)[names(events_1940_eat) == "V8"] <- "Prey"
+events_1940_eat
+
+#sort time
+library(lubridate)
+start_1940 <- as.POSIXct("4/12/2019 15:10:00", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1940 <- data.frame(start_1940 + seconds(events_1940_eat$Seconds))
+names(eat_times_1940) <- c("Time")
+pred_1940 <- cbind(events_1940_eat, eat_times_1940)
+
+####1941####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1941 <- read.table("1941.csv", sep = ",", dec = ".", skip = 22)
+events_1941_eat <- subset(events_1941, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1941_eat)[names(events_1941_eat) == "V1"] <- "Seconds"
+names(events_1941_eat)[names(events_1941_eat) == "V8"] <- "Prey"
+events_1941_eat
+
+#sort time
+library(lubridate)
+start_1941 <- as.POSIXct("4/12/2019 18:55:05", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #start time based on timsestamp video
+eat_times_1941 <- data.frame(start_1941 + seconds(events_1941_eat$Seconds))
+names(eat_times_1941) <- c("Time")
+pred_1941 <- cbind(events_1941_eat, eat_times_1941)
+
+####1942####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1942 <- read.table("1942.csv", sep = ",", dec = ".", skip = 22)
+events_1942_eat <- subset(events_1942, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1942_eat)[names(events_1942_eat) == "V1"] <- "Seconds"
+names(events_1942_eat)[names(events_1942_eat) == "V8"] <- "Prey"
+events_1942_eat
+
+#sort time
+library(lubridate)
+
+#because seals 1942 & 1943 had depth trigger, camera restarts multiple times throughout clip, so seconds do not correlate correctly with time, 
+#to correct, need to have separate start times for each of the 9 clips and adding seconds on to those
+
+#taking seconds from events_1942_eat and adding it to each separate vid start time
+
+start1_1942 <- as.POSIXct("6/12/2019 1:58:14", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #0-20.99 seconds - NO PRED
+start2_1942 <- as.POSIXct("6/12/2019 2:02:42", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #21-131.99 seconds  - NO PRED
+start3_1942 <- as.POSIXct("6/12/2019 3:07:00", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #132-183.99 seconds - rows 1:13
+start4_1942 <- as.POSIXct("6/12/2019 6:53:19", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #184-204.99 seconds - rows 14
+start5_1942 <- as.POSIXct("6/12/2019 7:11:13", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #205-404.99 seconds - rows 15:27
+start6_1942 <- as.POSIXct("6/12/2019 7:17:03", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #405-695.99 seconds - rows 28:34
+start7_1942 <- as.POSIXct("6/12/2019 7:28:19", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #696-776.99 seconds - rows 35:47
+start8_1942 <- as.POSIXct("6/12/2019 7:31:56", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #776-1067.99 seconds - rows 48:54
+start9_1942 <- as.POSIXct("6/12/2019 7:39:02", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #1068-1358 seconds - rows 55:56
+
+#have start times dictated by number of seconds, i.e. if seconds == x - x, then start time = x
+#subset eat events based on seconds
+
+#need to transform seconds that is currently factor into numeric
+class(events_1942_eat$Seconds) #factor
+events_1942_eat$Seconds <- as.numeric(paste(events_1942_eat$Seconds))
+class(events_1942_eat$Seconds) #numeric
+
+#to separate eating events based on clip they are in and start time each has
+eat3_1942 <- events_1942_eat[c(1:13), c(1:2)]
+eat4_1942 <- events_1942_eat[c(14), c(1:2)]
+eat5_1942 <- events_1942_eat[c(15:27), c(1:2)]
+eat6_1942 <- events_1942_eat[c(28:34), c(1:2)]
+eat7_1942 <- events_1942_eat[c(35:47), c(1:2)]
+eat8_1942 <- events_1942_eat[c(48:54), c(1:2)]
+eat9_1942 <- events_1942_eat[c(55:56), c(1:2)]
+
+#now to minus previous seconds from prey seconds to find seconds since start of individual clip
+eat3_1942$correctSeconds <- (eat3_1942$Seconds-131)
+eat4_1942$correctSeconds <- (eat4_1942$Seconds-183)
+eat5_1942$correctSeconds <- (eat5_1942$Seconds-204)
+eat6_1942$correctSeconds <- (eat6_1942$Seconds-404)
+eat7_1942$correctSeconds <- (eat7_1942$Seconds-695)
+eat8_1942$correctSeconds <- (eat8_1942$Seconds-776)
+eat9_1942$correctSeconds <- (eat9_1942$Seconds-1067)
+
+#now find prey times for each event in each dataframe
+
+eat_times3_1942 <- data.frame(start3_1942 + seconds(eat3_1942$correctSeconds))
+names(eat_times3_1942) <- c("Time")
+pred3_1942 <- cbind(eat3_1942, eat_times3_1942)
+
+eat_times4_1942 <- data.frame(start4_1942 + seconds(eat4_1942$correctSeconds))
+names(eat_times4_1942) <- c("Time")
+pred4_1942 <- cbind(eat4_1942, eat_times4_1942)
+
+eat_times5_1942 <- data.frame(start5_1942 + seconds(eat5_1942$correctSeconds))
+names(eat_times5_1942) <- c("Time")
+pred5_1942 <- cbind(eat5_1942, eat_times5_1942)
+
+eat_times6_1942 <- data.frame(start6_1942 + seconds(eat6_1942$correctSeconds))
+names(eat_times6_1942) <- c("Time")
+pred6_1942 <- cbind(eat6_1942, eat_times6_1942)
+
+eat_times7_1942 <- data.frame(start7_1942 + seconds(eat7_1942$correctSeconds))
+names(eat_times7_1942) <- c("Time")
+pred7_1942 <- cbind(eat7_1942, eat_times7_1942)
+
+eat_times8_1942 <- data.frame(start8_1942 + seconds(eat8_1942$correctSeconds))
+names(eat_times8_1942) <- c("Time")
+pred8_1942 <- cbind(eat8_1942, eat_times8_1942)
+
+eat_times9_1942 <- data.frame(start9_1942 + seconds(eat9_1942$correctSeconds))
+names(eat_times9_1942) <- c("Time")
+pred9_1942 <- cbind(eat9_1942, eat_times9_1942)
+
+#now combining all of those into one data frame
+pred_1942 <- rbind(pred3_1942, pred4_1942, pred5_1942, pred6_1942, pred7_1942, pred8_1942, pred9_1942)
+
+#correlating depth data for each of those times to plot
+
+setwd("D:/WEDE ANALYSIS/Kim Data/ToRose2/ToRose2")
+CATS_1942 <- read.csv("20191212-145416-CATS146_1942.csv", sep = ",", dec = ".")
+
+CATS_1942$Depth_neg <- (CATS_1942$Depth..100bar...m.*-1)
+#subset date time and depth to  plot as file is huge
+CATS_1942_dtd <- subset(CATS_1942, select = c("Date..local." , "Time..local.", "Depth_neg")) 
+#how to make date time in one column
+CATS_1942_dtd$date_time <- as.factor(paste(CATS_1942_dtd$Date..local., CATS_1942_dtd$Time..local., sep = " "))
+CATS_1942_dtd$DT<-as.POSIXct(CATS_1942_dtd$date_time, format="%d.%m.%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+
+#small <- CATS_1942_dtd[match(unique(CATS_1942_dtd$DT), CATS_1942_dtd$Time), ]
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+write.csv(CATS_1942_dtd, "CATS_1942.csv")
+
+####1943####
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1943 <- read.table("1943.csv", sep = ",", dec = ".", skip = 22)
+#now to select all eating events out of data set must subset V6 column to get 
+#just eating, column V8 is modifiers eg prey type
+events_1943_eat <- subset(events_1943, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1943_eat)[names(events_1943_eat) == "V1"] <- "Seconds"
+names(events_1943_eat)[names(events_1943_eat) == "V8"] <- "Prey"
+events_1943_eat
+
+#sort time
+library(lubridate)
+
+#have separate start times for each of the 9 clips and adding seconds on to those
+#taking seconds from events_1942_eat and adding it to each separate vid start time
+
+start1_1943 <- as.POSIXct("8/12/2019 09:06:57", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #0-561 seconds - rows 1:3
+start2_1943 <- as.POSIXct("8/12/2019 20:01:29", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #562-882 seconds - rows 4:7
+start3_1943 <- as.POSIXct("8/12/2019 22:10:32", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #883-963 seconds - rows 8:25
+start4_1943 <- as.POSIXct("9/12/2019 00:54:01", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #964-969 seconds - no pred
+start5_1943 <- as.POSIXct("9/12/2019 00:55:31", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo") #970-988 seconds - rows 26:33
+
+#have start times dictated by number of seconds, i.e. if seconds == x - x, then start time = x
+#subset eat events based on seconds
+
+#need to transform seconds that is currently factor into numeric
+class(events_1943_eat$Seconds) #numeric
+
+#to separate eating events based on clip they are in and start time each has
+eat1_1943 <- events_1943_eat[c(1:3), c(1:2)]
+eat2_1943 <- events_1943_eat[c(4:7), c(1:2)]
+eat3_1943 <- events_1943_eat[c(8:25), c(1:2)]
+eat5_1943 <- events_1943_eat[c(26:33), c(1:2)]
+
+#now to minus previous seconds from prey seconds to find seconds since start of individual clip
+eat1_1943$correctSeconds <- (eat1_1943$Seconds-0)
+eat2_1943$correctSeconds <- (eat2_1943$Seconds-561)
+eat3_1943$correctSeconds <- (eat3_1943$Seconds-882)
+eat5_1943$correctSeconds <- (eat5_1943$Seconds-969)
+
+#now find prey times for each event in each dataframe
+
+eat_times1_1943 <- data.frame(start1_1943 + seconds(eat1_1943$correctSeconds))
+names(eat_times1_1943) <- c("Time")
+pred1_1943 <- cbind(eat1_1943, eat_times1_1943)
+
+eat_times2_1943 <- data.frame(start2_1943 + seconds(eat2_1943$correctSeconds))
+names(eat_times2_1943) <- c("Time")
+pred2_1943 <- cbind(eat2_1943, eat_times2_1943)
+
+eat_times3_1943 <- data.frame(start3_1943 + seconds(eat3_1943$correctSeconds))
+names(eat_times3_1943) <- c("Time")
+pred3_1943 <- cbind(eat3_1943, eat_times3_1943)
+
+eat_times5_1943 <- data.frame(start5_1943 + seconds(eat5_1943$correctSeconds))
+names(eat_times5_1943) <- c("Time")
+pred5_1943 <- cbind(eat5_1943, eat_times5_1943)
+
+#now combining all of those into one data frame
+pred_1943 <- rbind(pred1_1943, pred2_1943, pred3_1943, pred5_1943)
+
+#correlating depth data for each of those times to plot
+
+setwd("D:/WEDE ANALYSIS/Kim Data/ToRose2/ToRose2")
+CATS_1943 <- read.csv("20191214-093019-CATS148_1943.csv", sep = ",", dec = ".")
+
+#make depth negative
+CATS_1943$Depth_neg <- (CATS_1943$Depth..100bar...m.*-1)
+#could subset date time and depth to  plot?
+CATS_1943_dtd <- subset(CATS_1943, select = c("Date..local." , "Time..local.", "Depth_neg")) 
+#how to make date time in one column
+CATS_1943_dtd$date_time <- as.factor(paste(CATS_1943_dtd$Date..local., CATS_1943_dtd$Time..local., sep = " "))
+CATS_1943_dtd$DT<-as.POSIXct(CATS_1943_dtd$date_time, format="%d.%m.%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+write.csv(CATS_1943_dtd, "CATS_1943.csv")
+
+#### sorting out vid start times ####
+#prey encounters based on seconds since start of video, not time of day.
+#need to find start time of videos and dive tags, as each has different trigger,
+#identifying dives of same length in video and matching that to TDR to identify start time, 
+#to then correlate seconds to time to identify prey ecnounter depths
+
+#added start time and date of all videos to CLEAN_DATA_final.csv
+
+setwd("D:/WEDE ANALYSIS")
+wedd_dat <- read.csv("CLEAN_DATA_final.csv")
+head(wedd_dat)
+
+#https://rstudio-pubs-static.s3.amazonaws.com/28038_1bcb9aa80ca84f27ace07d612872861a.html
+#A date + time is represented in R as an object of class POSIXct.
+
+#help info:
+#first you have to turn your date-time value (from the depth data) into a POSIXct format 
+#(or date-time format). In other words,you just need to tell R that this is a date-time, 
+#which then allows you to manipulate it.
+
+#new_date_time <- as.POSIXct(strptime(as.character(YOUR_OLD_DATE_TIME ), 
+#format = "%Y-%m-%d %H:%M:%S", tz="GMT")) 
+#You have to get the format right and also the time-zone(TZ).
+#Format can be changed to match whatever your date-time is in. If you search ?strptime 
+#in R you will see the different formats. If you look at your new_date_time vector and 
+#it is all NAs, it is because something is wrong with how you specified the format.
+
+#trying POSIXct way again
+library(lubridate)
+?as.POSIXct
+start_1813 <- as.POSIXct("21/11/2018 12:31:08", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1813 <- data.frame(start_1813 + seconds(events_1813_eat$Seconds))
+
+#Another option is to use the R library "lubridate".
+#You can use ymd_hms to turn your date-time into something R understands.
+#once you have your date-time in the right format. You can add your 
+#seconds in one line of code.
+
+##First load lubridate
+#library(lubridate)
+#Then add the seconds
+#new_date_time + seconds(your_seconds_since_start_of_video_vector)
+
+#library(lubridate)
+#start_1813 <- ymd_hms("2018-11-21 12:31:08", tz = "Antarctica/McMurdo")
+#eat_times_1813 <- data.frame(start_1813 + seconds(events_1813_eat$seconds))
+
+#changing variable name
+names(eat_times_1813) <- c("Time")
+eat_times_1813
+pred_1813 <- cbind(events_1813_eat, eat_times_1813)
+
+write.csv(pred_1813, "D:/WEDE ANALYSIS/WESE_chapter2/predation_1813.csv")
+
+#now have date-time, seconds, and prey type.
+#repeat for each seal
+
+library(lubridate)
+#start_1817 <- ymd_hms("2018-11-29 12:33:14", tz = "Antarctica/McMurdo")
+start_1817 <- as.POSIXct("29/11/2018 12:33:14", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1817 <- data.frame(start_1817 + seconds(events_1817_eat$seconds))
+names(eat_times_1817) <- c("Time")
+eat_times_1817
+pred_1817 <- cbind(events_1817_eat, eat_times_1817)
+
+#start_1819 <- ymd_hms("2018-11-29 12:40:30", tz = "Antarctica/McMurdo")
+start_1819 <- as.POSIXct("29/11/2018 12:40:30", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1819 <- data.frame(start_1819 + seconds(events_1819_eat$seconds))
+names(eat_times_1819) <- c("Time")
+pred_1819 <- cbind(events_1819_eat, eat_times_1819)
+
+#start_1930 <- ymd_hms("2019-11-20 6:48:02", tz = "Antarctica/McMurdo")
+start_1930 <- as.POSIXct("20/11/2019 6:48:02", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1930 <- data.frame(start_1930 + seconds(events_1930_eat$seconds))
+names(eat_times_1930) <- c("Time")
+pred_1930 <- cbind(events_1930_eat, eat_times_1930)
+
+#start_1939 <- ymd_hms("2019-12-2 22:28:05", tz = "Antarctica/McMurdo")
+start_1939 <- as.POSIXct("2/12/2012 22:28:05", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1939 <- data.frame(start_1939 + seconds(events_1939_eat$seconds))
+names(eat_times_1939) <- c("Time")
+pred_1939 <- cbind(events_1939_eat, eat_times_1939)
+
+#start_1940 <- ymd_hms("2019-12-3 6:11:03", tz = "Antarctica/McMurdo")
+start_1940 <- as.POSIXct("3/12/2019 6:11:03", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1940 <- data.frame(start_1940 + seconds(events_1940_eat$seconds))
+names(eat_times_1940) <- c("Time")
+pred_1940 <- cbind(events_1940_eat, eat_times_1940)
+
+#start_1941 <- ymd_hms("2019-12-4 6:55:05", tz = "Antarctica/McMurdo")
+start_1941 <- as.POSIXct("4/12/2019 6:55:05", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1941 <- data.frame(start_1941 + seconds(events_1941_eat$seconds))
+names(eat_times_1941) <- c("Time")
+pred_1941 <- cbind(events_1941_eat, eat_times_1941)
+
+#ASK KIM AND MICHELLE ABOUT THESE ONES - DEPTH TRIGGER
+#Do i need to add multiple start times for these ones? Depth trigger, multiple start times
+#start_1942 <- ymd_hms("2019-12-5 1:50:10", tz = "Antarctica/McMurdo")
+start_1942 <- as.POSIXct("5/12/2019 1:50:10", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1942 <- data.frame(start_1942 + seconds(events_1942_eat$seconds))
+names(eat_times_1942) <- c("Time")
+#not right cos of depth trigger
+pred_1942 <- cbind(events_1942_eat, eat_times_1942)
+
+#start_1943 <- ymd_hms("2019-12-7 9:07:01", tz = "Antarctica/McMurdo")
+start_1943 <- as.POSIXct("7/12/2019 9:07:01", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1943 <- data.frame(start_1943 + seconds(events_1943_eat$seconds)) 
+names(eat_times_1943) <- c("Time")
+#not right cos of depth trigger
+pred_1943 <- cbind(events_1943_eat, eat_times_1943)
+
+####merging pred and depth #### 
+#now take "pred_SEAL-ID" and combine it with depth time data to be able 
+#to plot predation points on depth.
+
+#now repeat for all successful foragers 
+
+#1817
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+pred_1817
+#need to always have time in the R time format - I just created a new colum with the time in the correct format
+pred_1817$DT<-as.POSIXct(pred_1817$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+#use match command to give the position of the time you need - you now have the index values that you need to find the depth for in the other file
+ind<-match(pred_1817$DT, DTBack_1817$Time )
+#now you find the depth at those index  values
+pred_1817$Depth<-DTBack_1817$Depth[ind]
+
+#1819 
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+pred_1819
+pred_1819$DT<-as.POSIXct(pred_1819$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+ind<-match(pred_1819$DT, DTBack_1819$Time )
+pred_1819$Depth<-DTBack_1819$Depth[ind]
+
+#1930
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+pred_1930
+pred_1930$DT<-as.POSIXct(pred_1930$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+ind<-match(pred_1930$DT, DTBack_1930$Time )
+pred_1930$Depth<-DTBack_1930$Depth[ind]
+
+#1939
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+pred_1939
+pred_1939$DT<-as.POSIXct(pred_1939$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+ind<-match(pred_1939$DT, DTBack_1939$Time )
+pred_1939$Depth<-DTBack_1939$Depth[ind]
+
+#1940
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+pred_1940
+pred_1940$DT<-as.POSIXct(pred_1940$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+ind<-match(pred_1940$DT, DTBack_1940$Time )
+pred_1940$Depth<-DTBack_1940$Depth[ind]
+
+#1941
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+pred_1941
+pred_1941$DT<-as.POSIXct(pred_1941$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+ind<-match(pred_1941$DT, DTBack_1941$Time )
+pred_1941$Depth<-DTBack_1941$Depth[ind]
+
+#1942
+
+#data
+#pred_1942
+#CATS_1942_dtd
+
+#need to always have time in the R time format - I just created a new colum with the time in the correct format
+pred_1942$DT<-as.POSIXct(pred_1942$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo")
+CATS_1942_dtd$DTcorrect <- as.POSIXct(CATS_1942_dtd$DT, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo")
+ind<-match(pred_1942$DT, CATS_1942_dtd$DTcorrect)
+pred_1942$Depth<-CATS_1942_dtd$Depth_neg[ind]
+
+
+#1943
+
+#data
+#pred_1943
+#CATS_1943_dtd
+
+pred_1943$DT<-as.POSIXct(pred_1943$Time, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo")
+CATS_1943_dtd$DTcorrect <- as.POSIXct(CATS_1943_dtd$DT, format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo")
+ind<-match(pred_1943$DT, CATS_1943_dtd$DTcorrect)
+pred_1943$Depth<-CATS_1943_dtd$Depth_neg[ind]
+
+#### Prey depths totals ####
+
+#taking the csv files with all prey depths and names and finding averages and range for each prey type
+#prey types found 
+# silverfish
+# borch
+# ice fish
+# toothfish
+# shrimp
+# unkn fish
+# unknown
+# unseen
+# unseen inside sponge
+
+#ZOC'd depths
+#ZOCd in external ethographer program igorpro8 using depth and temperature - inconsistent temps indicated wrong depth so was corrected for
+#two seal 1940 & 1941 had no temperature data so was manually ZOCd in divemove by looking at plot and seeing how far the surface was from 0
+
+#imported into R
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2/preydepths_ZOCd")
+prey_1813 <- read.csv("preydepths_1813v2.csv")
+prey_1817 <- read.csv("preydepths_1817v2.csv")
+prey_1819 <- read.csv("preydepths_1819v2.csv")
+prey_1930 <- read.csv("preydepths_1930v2.csv")
+prey_1939 <- read.csv("preydepths_1939v2.csv")
+prey_1940 <- read.csv("preydepths_1940.csv") #not updated as ZOC manual in diveMove
+prey_1941 <- read.csv("preydepths_1941.csv") #not updated as ZOC manual in diveMove
+prey_1942 <- read.csv("preydepths_1942v2.csv")
+prey_1943 <- read.csv("preydepths_1943v2.csv")
+
+prey_1813$SealID <- "1813"
+prey_1817$SealID <- "1817"
+prey_1819$SealID <- "1819"
+prey_1930$SealID <- "1930"
+prey_1939$SealID <- "1939"
+prey_1940$SealID <- "1940"
+prey_1941$SealID <- "1941"
+prey_1942$SealID <- "1942"
+prey_1943$SealID <- "1943"
+
+head(prey_1940)
+prey_1940$X.1 <- NULL
+names(prey_1940) <- c("X", "Seconds", "Prey", "Time", "DT", "Depth_ZOC", "SealID")
+
+head(prey_1941)
+prey_1941$X.1 <- NULL
+names(prey_1941) <- c("X", "Seconds", "Prey", "Time", "DT", "Depth_ZOC", "SealID")
+summary(prey_1941$Prey)
+
+head(prey_1942)
+prey_1942$correctSeconds <- NULL
+
+head(prey_1943)
+prey_1943$correctSeconds <- NULL
+
+prey_summary <- rbind(prey_1813, prey_1817, prey_1819, prey_1930, prey_1939, 
+                      prey_1940, prey_1941, prey_1942, prey_1943)
+
+prey_summary$X <- NULL
+head(prey_summary)
+
+write.csv(prey_summary, "D:/WEDE ANALYSIS/WESE_chapter2/preydepths_ZOCd/prey_summary.csv", row.names = TRUE)
+
+#remove extraneous data, just prey name and depth
+#then merge into one df
+#can then find just find range and max and min
+
+prey_summary$Seconds <- NULL
+prey_summary$Time <- NULL
+
+#now subset for each prey type
+
+silverfish <- subset(prey_summary, Prey == 'silverfish', select = c("Prey", "Depth_ZOC")) #162 events
+shrimp <- subset(prey_summary, Prey == 'krill/shrimp', select = c("Prey", "Depth_ZOC")) #391 events
+borch <- subset(prey_summary, Prey == 'borch', select = c("Prey", "Depth_ZOC")) #6 events
+icefish <- subset(prey_summary, Prey == 'ice fish', select = c("Prey", "Depth_ZOC")) #8 events
+toothfish <- subset(prey_summary, Prey == 'toothfish', select = c("Prey", "Depth_ZOC")) #2 events
+unknownfish <- subset(prey_summary, Prey == 'unkn fish', select = c("Prey", "Depth_ZOC")) #34 events
+unknown <- subset(prey_summary, Prey == 'unknown', select = c("Prey", "Depth_ZOC")) #38 events
+unseen <- subset(prey_summary, Prey == 'unseen', select = c("Prey", "Depth_ZOC")) #196 events
+sponge <- subset(prey_summary, Prey == 'unseen - in sponge', select = c("Prey", "Depth_ZOC")) # 5 events
+octopus <- subset(prey_summary, Prey == 'octopus', select = c("Prey", "Depth_ZOC")) # 2 events
+zoarcid <- subset(prey_summary, Prey == 'zoarcid', select = c("Prey", "Depth_ZOC")) # 1 event
+
+#subset new variable for all unknowns
+total_unknown <- subset(prey_summary, Prey == 'unknown'| Prey == 'unseen'| Prey == 'unkn fish',
+                        select = c("Prey", "Depth_ZOC")) #38+196+34 events
+summary(total_unknown) #min 445.3, max, -1.0, mean 145.2, median 75.98
+sd(total_unknown$Depth) #138.06Prey == 'unkn fish'
+
+#find range, mean and median
+summary(prey_summary)
+summary(silverfish)
+summary(borch)
+summary(shrimp)
+summary(unseen)
+summary(sponge)
+summary(icefish)
+summary(unknownfish)
+summary(toothfish)
+summary(octopus)
+summary(zoarcid)
+summary(unknown)
+
+#standard deviation - how far mean strays from actual
+sd(prey_summary$Depth) #145.7
+sd(silverfish$Depth) #69.5
+sd(borch$Depth) #5.3
+sd(shrimp$Depth) #78.2
+sd(unseen$Depth) #145.5
+sd(icefish$Depth) #60.4
+sd(sponge$Depth) #31.7
+sd(unknown$Depth) #129.0
+sd(unknownfish$Depth) #98.7
+sd(octopus$Depth) #5.7
+sd(zoarcid$Depth) # NA
+sd(toothfish$Depth) #NA
+
+#plotting prey occurence in percent of total w n=x for number of seals that ate it 
+
+prey2 <- c('toothfish',	'borch',	'krill',	'silverfish',	'icefish',	'octopus',	'unknown', 'zoarcid', "in_sponge")
+
+#number of seals 
+num_seals2 <- c("n = 1",	"n = 1",	"n = 5", "n = 6",	"n = 4",	"n = 1",	"n = 9",	"n = 1", "n = 3")
+
+#percent totals
+percent2 <- c(0.2,	0.7,	46.2,	19.2,	1.0,	0.2,	32.4,	0.1, 0.6 )
+label2 <-  c("0.2%",	"0.7%",	"46.2%",	"19.2%",	"1.0%",	"0.2%",	"31.8%",	"0.1%", "0.6%")
+
+df2 <- data.frame(prey2, num_seals2, percent2, label2)
+library(ggplot2)
+
+#changing order of prey for publication
+positions <- c("krill", "unknown", "silverfish", 'icefish', 	'borch', "in_sponge", 'toothfish',	
+               	'octopus', 'zoarcid')
+
+ggplot(df2, aes(x = prey2, y=percent2)) +
+  geom_bar(stat = "identity", position = "stack", width = 0.4, fill = "black") +
+  geom_text(aes(label=num_seals2), position=position_dodge(width=0.1), vjust=-0.5)+
+  xlab("Prey type") +
+  ylab("Percent total prey encountered on video (%)")+
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(), 
+        panel.border = element_blank())+
+  theme(axis.line = element_line(color = 'black'))+
+  ylim(0, 50)+
+  theme(text = element_text(size=12)) + #to edit y axis title
+  theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
+  scale_x_discrete(limits = positions, breaks = c("krill", "unknown", "silverfish", 'icefish', 	'borch', "in_sponge", 'toothfish',	
+                                                  'octopus', 'zoarcid'), 
+                   labels = c("Crustaceans","Unknown", "P. antarcticum", "Channichthyidae spp.","T. borchgrevinki", 
+                              "Within sponge", "D. mawsoni", 
+                                "Octopoda spp.",   "Zoarcid sp.")) 
+
+setwd("D:/WEDE ANALYSIS/Plots/R Plots/Publication")
+ggsave(filename="preypercent.jpeg",width=8, height=6,units="in",dpi=500)
+
+
+####diveMove analysis####
+#analyse prey depths in relation to diveMove data
+
+prey_summary <- read.csv("D:/WEDE ANALYSIS/WESE_chapter2/prey_summary.csv")
+
+#total 845 events
+#Percentage of prey taken above 50m
+depth_above50 <- subset(prey_summary, Depth >= -49.99, select = c(Depth, Prey, SealID))
+#115 predation events occurred above -50m
+115/845 #13.6%
+
+#Percentage of prey taken below 50m 
+depth_below50 <- subset(prey_summary, Depth <= -50, select = c(Depth, Prey, SealID))
+#730 predation events occurred below -50m
+730/845 #86.4%
+
+summary(depth_above50)
+summary(depth_below50)
+
+#individual seals 
+#no. of prey above and below -50m
+
+prey_1819_x <- subset(prey_1819, Depth <= -50, select = c(Depth, Prey, SealID))
+prey_1930_x <- subset(prey_1930, Depth <= -50, select = c(Depth, Prey, SealID))
+prey_1940_x <- subset(prey_1940, Depth <= -50, select = c(Depth, Prey, SealID))
+prey_1941_x <- subset(prey_1941, Depth <= -50, select = c(Depth, Prey, SealID))
+prey_1942_x <- subset(prey_1942, Depth <= -50, select = c(Depth, Prey, SealID))
+prey_1943_x <- subset(prey_1943, Depth <= -50, select = c(Depth, Prey, SealID))
+

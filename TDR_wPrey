@@ -1,0 +1,158 @@
+#Combining prey encounter times with TDR data to plot both together
+
+#example seal 
+#### 1813#### 
+setwd("D:/WEDE ANALYSIS/EventData/All_events_csv")
+events_1813 <- read.table("1813.csv", sep = ",", dec = ".", skip = 22)
+events_1813_eat <- subset(events_1813, V6 == "eating", select = c("V1", "V8"))
+
+#to rename columns in dataframe
+names(events_1813_eat)[names(events_1813_eat) == "V1"] <- "Seconds"
+names(events_1813_eat)[names(events_1813_eat) == "V8"] <- "Prey"
+events_1813_eat
+
+#sorting out times as currently in seconds - datetime
+class(events_1813_eat$Seconds) #numeric
+
+library(lubridate)
+#?as.POSIXct
+start_1813 <- as.POSIXct("21/11/2018 12:31:29", format="%d/%m/%Y %H:%M:%S", tz = "Antarctica/McMurdo")
+eat_times_1813 <- data.frame(start_1813 + seconds(events_1813_eat$Seconds))
+names(eat_times_1813) <- c("Time")
+eat_times_1813
+pred_1813 <- cbind(events_1813_eat, eat_times_1813)
+
+####TDR data####
+#depth recorded on both back and jaw tag in 2018, extracting both and plotting together
+
+#1813
+setwd("D:/WEDE ANALYSIS/ToRose/ToRose")
+
+#Back data ORI1300-3MPD3GT - depth every second
+Back<-read.table("WS1813_DTS_Back.txt",sep = ",",dec = ".",skip=8) #this skips over the 7 lines of header to bring in the data
+#make depth negative
+DBack<-as.data.frame(Back[,1]*-1)
+#now we need to link time to the depth
+BackStLocal<-as.POSIXct("21/11/2018 09:39:37", format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+#calculate end time based on the number of rows
+BackEndLocal<-BackStLocal+(nrow(DBack)-1)
+DBackSeq<-as.data.frame(seq(BackStLocal,BackEndLocal, by=1))
+DTBack_1813<-cbind(DBack,DBackSeq)
+names(DTBack_1813)<-c("Depth","Time")
+
+#Jaw data - depth every second
+#setwd("F:/RossSea_MPA/Data/DEC2018/Seals/TagData/WS1813/ORI1300-D3GT_Jaw") 
+setwd("D:/WEDE ANALYSIS/ToRose/ToRose")
+Jaw<-read.table("WS1813_DT_Jaw.txt",sep = ",",dec = ".",skip=7) #this skips over the 7 lines of header to bring in the data
+DJaw<-as.data.frame(Jaw[,1]*-1)
+JawStLocal<-as.POSIXct("20/11/2018 22:10:33", format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+#calcualte end time based on the number of rows
+JawEndLocal<-JawStLocal+(nrow(DJaw)-1)
+DJawSeq<-as.data.frame(seq(JawStLocal,JawEndLocal, by=1))
+DTJaw_1813 <-cbind(DJaw,DJawSeq)
+names(DTJaw_1813)<-c("Depth","Time")
+
+####adding ZOC'd depths####
+#TDR data ZOC'd externally using igorpro8 ethographer program, importing new depth data in:
+
+ZOC_back1813 <- read.table("D:/WEDE ANALYSIS/ToRose/ToRose/ZOCd/Dback1813.txt", 
+                                sep = ",",dec = ".", skip = 1)
+neg <- as.data.frame(ZOC_back1813[,1]*-1)
+names(neg) <- c("Depth_ZOC")
+
+ZOC_jaw1813 <- read.table("D:/WEDE ANALYSIS/ToRose/ToRose/ZOCd/Djaw1813.txt", 
+                         sep = ",",dec = ".", skip = 1)
+neg1 <- as.data.frame(ZOC_jaw1813[,1]*-1)
+names(neg1) <- c("Depth_ZOC")
+
+####cbind those to dback and djaw####
+Back_1813 <- cbind(DTBack_1813, neg)
+Jaw_1813 <- cbind(DTJaw_1813, neg1)
+
+summary(Jaw_1813) #374.9 
+summary(Back_1813) #376.3
+
+####adding prey data ####
+setwd("D:/WEDE ANALYSIS/WESE_chapter2/")
+pred<-read.csv("pred_1813.csv")
+pred$DT<-as.POSIXct(pred$Time, format="%Y-%m-%d %H:%M:%S", tz=	"Antarctica/McMurdo") 
+
+#use match command to give the position of the time you need - you now have the index values that you need to find the 
+#depth for in the other file
+ind<-match(pred$DT, Jaw_1813$Time)
+#now you find the depth at those index  values
+pred$Depth_ZOC<-Jaw_1813$Depth_ZOC[ind] #to add a new column to pred dataframe called Depth
+pred$X <- NULL
+
+write.csv(pred, "D:/WEDE ANALYSIS/WESE_chapter2/preydepths_ZOCd/preydepths_1813v2.csv")
+summary(pred)
+
+#plotting together
+pred <- read.csv("D:/WEDE ANALYSIS/WESE_chapter2/preydepths_ZOCd/preydepths_1813v2.csv")
+
+library(ggplot2)
+# Plot both tags together; bring in the times of prey items and plot them as points. 
+ggplot(Back_1813, aes(x = Time, y = Depth_ZOC)) +
+  geom_line(color="blue") +
+  geom_line(data=Jaw_1813, aes(x=Time,y=Depth_ZOC), color="red")+
+  geom_point(data=pred,aes(x=DT, y=Depth_ZOC, colour = factor(Prey)), 
+             cex=2,pch=16)+
+  scale_x_datetime(name="Time (24hr)", date_labels = "%H", breaks="6 hour") +
+  theme_bw() +
+  theme(text = element_text(size=14)) +
+  scale_y_continuous(name="Depth (m)") +
+  scale_colour_manual(name = "Prey type", breaks = c('silverfish', 'unseen', "unseen - in sponge"), 
+                      labels = c("Antarctic silverfish", "Unseen", "Unseen (inside sponge)"), 
+                      values = c("black", "grey45", "grey70"))
+
+####for lining up jaw and back ####
+#back and jaw tags used different triggers and started at different times, using this to see how they overlap, then changing start time to correct
+
+#if you want to zoom in to see that things are aligned you can just add a limit term to the x axis
+lims <- as.POSIXct(strptime(c("2018-11-21 12:50:00","2018-11-21  13:20:00"), format = "%Y-%m-%d %H:%M:%S",tz="Antarctica/McMurdo")) 
+
+ggplot(DTBack_1813, aes(x = Time, y=Depth)) +
+  geom_line(color="blue") +
+  geom_line(data=DTJaw_1813, aes(x=Time,y=Depth),color="red")+
+  scale_x_datetime(name="",date_labels = "%H",breaks="1 hour",lim=lims) +
+  theme_bw() +
+  theme(text = element_text(size=14)) +
+  scale_y_continuous(name="Depth (m)")
+
+#video start time corrected by 21 seconds
+#found through knowing length of second predation dive and how long in to it the predation occured
+#sponge predation occured 9 min 46 secs into second dive
+#based on correct DT_Back time this gave 13:07:07 time and -238.3 m
+#incorrect video time previously showed 13:06:46 and -239.9m
+#21 seconds difference
+#new video start time is 12:31:29 21-11-2018 
+
+#remove jaw line for clarity
+ggplot(DTBack_1813, aes(x = Time, y=Depth)) +
+  geom_line(color="blue") +
+  geom_point(data=pred,aes(x=DT, y=Depth, colour = factor(Prey)), cex=2,pch=16)+
+  scale_x_datetime(name="", date_labels = "%H", breaks="6 hour") +
+  theme_bw() +
+  theme(text = element_text(size=14)) +
+  scale_y_continuous(name="Depth (m)") +
+  scale_colour_manual(name = "Prey type", breaks = c('silverfish', 'unseen', "unseen - in sponge"), 
+                      labels = c("Antarctic silverfish", "Unseen", "Unseen (inside sponge)"), 
+                      values = c("red", "orange", "yellow"))
+
+#zoomed
+lims <- as.POSIXct(strptime(c("2018-11-21 12:10:00","2018-11-21  13:20:00"), format = "%Y-%m-%d %H:%M:%S",tz="Antarctica/McMurdo")) 
+
+ggplot(DTBack_1813, aes(x = Time, y=Depth)) +
+  geom_line(color="blue") +
+  geom_point(data=pred,aes(x=DT,y=Depth, colour = factor(Prey)), cex=2, pch=16) +
+  scale_x_datetime(name="",date_labels = "%H",breaks="1 hour", lim = lims) +
+  theme_bw() +
+  theme(text = element_text(size=14)) +
+  scale_y_continuous(name="Depth (m)") +
+  scale_colour_manual(name = "Prey type", breaks = c('silverfish', 'unseen', "unseen - in sponge"), 
+                      labels = c("P. antarcticum", "Unseen", "Unseen (inside sponge)"),
+                      values = c("red", "orange", "yellow"))
+
+
+#and repeat for each successful forager to plot prey encounters with depth data
+

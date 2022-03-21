@@ -1,0 +1,270 @@
+#using diveMove to identify diving behaviour
+#including number of dives, depth duration
+
+#used for each seal to identify foragers (dived deeper than 50m) and non foragers (did not)
+
+#import dive data for each seal
+
+#example seal
+####1813####
+rm(list = ls())
+
+#set WD for dive data 
+setwd("D:/WEDE ANALYSIS/diveMove/depth data")
+
+#Back data ORI1300-3MPD3GT - depth every second
+x <- read.table("D:/WEDE ANALYSIS/diveMove/depth data/WS1813_DTS_Back.txt", sep = ",", dec = ".", skip = 8) 
+names(x) <- c("Depth", "Temp", "Speed", "X")
+x_1 <- subset(x, select = c("Depth", "Temp"))
+BackStLocal<-as.POSIXct("21/11/2018 09:39:37", format="%d/%m/%Y %H:%M:%S", tz= "Antarctica/McMurdo") #now we need to link time to the depth 
+BackEndLocal<-BackStLocal+(nrow(x_1)-1) #calculate end time based on the number of rows
+DBackSeq<-as.data.frame(seq(BackStLocal,BackEndLocal, by=1))
+dive_1813_back <- cbind(x_1,DBackSeq)
+names(dive_1813_back)<-c("Depth","Temp","Time")
+
+#Jaw data - depth every second
+setwd("D:/WEDE ANALYSIS/ToRose/ToRose")
+Jaw<-read.table("WS1813_DT_Jaw.txt",sep = ",",dec = ".",skip=7) #this skips over the 7 lines of header to bring in the data
+JawStLocal<-as.POSIXct("20/11/2018 22:10:33", format="%d/%m/%Y %H:%M:%S", tz=	"Antarctica/McMurdo") 
+#calcualte end time based on the number of rows
+JawEndLocal<-JawStLocal+(nrow(Jaw)-1)
+DJawSeq<-as.data.frame(seq(JawStLocal,JawEndLocal, by=1))
+DTJaw_1813 <-cbind(Jaw,DJawSeq)
+names(DTJaw_1813)<-c("Depth","Temp", "X", "Time")
+
+DTJaw_1813$X <- NULL
+  
+####adding ZOC'd depths####
+#take only the tag used for analysis - jaw or back, dont need both
+ZOC_jaw1813 <- read.table("D:/WEDE ANALYSIS/ToRose/ToRose/ZOCd/Djaw1813.txt", 
+                          sep = ",",dec = ".", skip = 1)
+#neg1 <- as.data.frame(ZOC_jaw1813[,1]*-1)
+names(ZOC_jaw1813) <- c("Depth_ZOC")
+
+####cbind those to dback or djaw####
+Jaw_1813 <- cbind(DTJaw_1813, ZOC_jaw1813)
+summary(Jaw_1813) #374.9 
+
+write.csv(Jaw_1813, "D:/WEDE ANALYSIS/diveMove/depth data/formatted/ZOCd/1813_jaw.csv", row.names = TRUE)
+
+library(tagtools)
+plott(X=list(depth = Jaw_1813$Depth_ZOC),fsx= 100)
+
+#dive analysis for diveMove
+
+#reading in data from csv
+TDR_1813 <- read.csv("D:/WEDE ANALYSIS/diveMove/depth data/formatted/ZOCd/1813_jaw.csv")
+
+#checking variable format
+class(TDR_1813$Depth)
+class(TDR_1813$Temp)
+class(TDR_1813$Time) #character - wrong, need to fix
+
+TDR_1813$Time_v2 <-as.POSIXct(TDR_1813$Time, tz = "Antarctica/McMurdo", 
+                              format = c("%Y-%m-%d %H:%M:%S"))
+
+class(TDR_1813$Time_v2) #correct
+
+head(TDR_1813)
+TDR_1813$X <- NULL
+TDR_1813$Time <- NULL
+
+library(diveMove)
+#Now create the TDR class for diveMove, dtime sets the sampling interval at 1 seconds 
+#aka one pressure reading per 1 seconds.
+TDR_1813 <- createTDR(TDR_1813$Time_v2,
+                      TDR_1813$Depth_ZOC,
+                      speed = FALSE, 
+                      dtime = 1, 
+                      file = "TDR_1813")
+
+#need to ZOC data if there is drift in the pressure sensor data
+
+#(zoc.method) zoc your data and choose the method, 
+#(dive.thr) set your dive threshold (meters) the point a dive should be considered a dive ( 10 meters), 
+#(wet.thr) set the duration (in seconds) at which the subject must be below the dive.thr ( 30 seconds).
+
+dcalib_TDR <- calibrateDepth(TDR_1813,
+                             dive.thr = 10, #metres, based on R.Beltrane supp data 2021
+                             dry.thr = 60, #seconds, less than this is trivial wet
+                             wet.cond = TRUE, #logical, to assess wet vs dry 
+                             wet.thr = 30, #seconds, based on R.Beltrane supp data 2021
+                             dive.model = c("unimodal"),
+                             zoc.method = "offset",
+                             offset = 0, #data already ZOCd using external program (igorpro8 ethographer)
+                             k = c(3, 5760),
+                             probs = c(0.5, 0.02), 
+                             descent.crit.q=0.01, 
+                             ascent.crit.q=0,
+                             knot.factor=20)
+                            
+#Record is truncated at beginning and end
+#1 phase detected
+#60 dives detected
+
+dives_TDR  <- diveStats(dcalib_TDR)
+att_TDR <- timeBudget(dcalib_TDR, FALSE)
+stamps_TDR <- stampDive(dcalib_TDR) 
+
+tdrX <- diveStats(dcalib_TDR)
+stamps <- stampDive(dcalib_TDR, ignoreZ=TRUE)
+tdrX.tab <- data.frame(stamps, tdrX)
+summary(tdrX.tab)
+
+write.csv(tdrX.tab,"E:/WEDE ANALYSIS/diveMove/depth data/TDRs/1813_TDRsum.csv")
+sumtab_TDR <- data.frame(stamps_TDR, dives_TDR) 
+summary(sumtab_TDR) #summary data for all dives deeper than 10m
+
+#finding deep vs shallow dives
+shallow <- droplevels(subset(sumtab_TDR, sumtab_TDR$maxdep <= 50))
+#all dives with max depth shallower and equal to 50m
+deep <- droplevels(subset(sumtab_TDR, sumtab_TDR$maxdep > 50)) 
+
+#dives >50m: 22
+#dives <50m: 38
+
+
+
+#dive duration for seal 1813
+#divetim max: 1758 mins
+#min: 2 min
+#mean: 308.9
+sd(tdrX.tab$divetim)
+#SD: 543.7096
+
+#max maxdep: 373.9
+#mean maxdep: 80.54
+sd(tdrX.tab$maxdep)
+#sd: 126.94
+
+#bottdep.mean min: 10.10 - shallowest dive
+#bottdep.mean mean: 78.41 - mean depth 
+#bottdep.mean max: 369.40 - max dive
+
+##Plotting dcalib_TDR object. How diveMove characterizes data
+plotTDR(dcalib_TDR, surface=TRUE) 
+
+#Plot specific dives range based on the dive number.
+plotTDR(dcalib_TDR, diveNo = 1:20, surface = FALSE)
+
+#extractDive(dcalib_TDR, diveNo=1:1717)
+plotTDR(dcalib_TDR, diveNo=1:10, what="phases")
+
+#Prints out the phase information 
+getDPhaseLab(dcalib_TDR, 1:20)
+
+getTDR(dcalib_TDR)
+getGAct(dcalib_TDR, "phase.id")
+getDAct(dcalib_TDR)
+plotDiveModel(dcalib_TDR, diveNo = 7)
+
+####BOUTS ID ####
+
+## Too long for checks
+## Using the Example from '?diveStats':
+utils::example("diveStats", package="diveMove",
+               ask=FALSE, echo=FALSE, run.donttest=TRUE)
+## Postdive durations
+postdives <- tdrX.tab$postdive.dur[tdrX.tab$phase.no == 2]
+postdives.diff <- abs(diff(postdives))
+## Remove isolated dives
+postdives.diff <- postdives.diff[postdives.diff < 2000]
+
+## Construct histogram
+lnfreq <- boutfreqs(postdives.diff, bw=0.1, plot=FALSE)
+
+startval <- boutinit(lnfreq, 50)
+## Drop names by wrapping around as.vector()
+startval.l <- list(a1=as.vector(startval[[1]]["a"]),
+                   lambda1=as.vector(startval[[1]]["lambda"]),
+                   a2=as.vector(startval[[2]]["a"]),
+                   lambda2=as.vector(startval[[2]]["lambda"]))
+
+## Fit the 2 process model
+bout.fit <- bouts2.nls(lnfreq, start=startval.l, maxiter=500)
+summary(bout.fit)
+plotBouts(bout.fit)
+
+## Estimated BEC
+bec2(bout.fit)
+
+#ok now using my data
+
+View(tdrX.tab) #1813 dive data
+
+## Postdive durations
+postdives <- tdrX.tab$postdive.dur[tdrX.tab$phase.no == 1] #changed to 1 as my tdr thing has no phase 2
+postdives.diff <- abs(diff(postdives))
+## Remove isolated dives
+postdives.diff <- postdives.diff[postdives.diff < 2000]
+
+## Construct histogram
+lnfreq <- boutfreqs(postdives.diff, bw=0.1, plot=FALSE)
+
+startval <- boutinit(lnfreq, 50)
+## Drop names by wrapping around as.vector()
+startval.l <- list(a1=as.vector(startval[[1]]["a"]),
+                   lambda1=as.vector(startval[[1]]["lambda"]),
+                   a2=as.vector(startval[[2]]["a"]),
+                   lambda2=as.vector(startval[[2]]["lambda"]))
+
+## Fit the 2 process model
+bout.fit <- bouts2.nls(lnfreq, start=startval.l, maxiter=500)
+summary(bout.fit)
+plotBouts(bout.fit)
+
+## Estimated BEC
+bec2(bout.fit)
+
+#22.28
+
+?bec2(bout.fit)
+?`bout-methods`
+
+#another way 
+
+
+## Too long for checks
+## Using the Example from '?diveStats':
+utils::example("diveStats", package="diveMove",
+               ask=FALSE, echo=FALSE, run.donttest=TRUE)
+postdives <- tdrX.tab$postdive.dur[tdrX.tab$phase.no == 1]
+postdives.diff <- abs(diff(postdives))
+
+## Remove isolated dives
+postdives.diff <- postdives.diff[postdives.diff < 2000]
+lnfreq <- boutfreqs(postdives.diff, bw=0.1, plot=FALSE)
+startval <- boutinit(lnfreq, 50)
+p <- startval[[1]]["a"] / (startval[[1]]["a"] + startval[[2]]["a"])
+
+## Fit the reparameterized (transformed parameters) model
+## Drop names by wrapping around as.vector()
+init.parms <- list(p=as.vector(logit(p)),
+                   lambda1=as.vector(log(startval[[1]]["lambda"])),
+                   lambda2=as.vector(log(startval[[2]]["lambda"])))
+bout.fit1 <- bouts.mle(bouts2.LL, start=init.parms, x=postdives.diff,
+                       method="L-BFGS-B", lower=c(-2, -5, -10))
+coefs <- as.vector(coef(bout.fit1))
+
+## Un-transform and fit the original parameterization
+init.parms <- list(p=unLogit(coefs[1]), lambda1=exp(coefs[2]),
+                   lambda2=exp(coefs[3]))
+bout.fit2 <- bouts.mle(bouts2.ll, x=postdives.diff, start=init.parms,
+                       method="L-BFGS-B", lower=rep(1e-08, 3),
+                       control=list(parscale=c(1, 0.1, 0.01)))
+plotBouts(bout.fit2, postdives.diff)
+
+## Plot cumulative frequency distribution
+plotBouts2.cdf(bout.fit2, postdives.diff)
+
+## Estimated BEC
+bec <- bec2(bout.fit2)
+
+## Label bouts
+labelBouts(postdives, rep(bec, length(postdives)),
+           bec.method="seq.diff")
+
+
+
+
+

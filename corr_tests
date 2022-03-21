@@ -1,0 +1,374 @@
+#correlation test
+#testing to see if there is correlation between a seals diving behaviour and the age of their pup, or maternal mass, fatness, and age, date tagged (day-month).
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+
+d1 <- read.csv("D:/WEDE ANALYSIS/WESE_chapter2/corr_test.csv", sep = ",", dec = ".", skip = 0) 
+#file with all dive stats & metadata ranked 
+
+#data in file
+#number of dives (total, shallow, and deep)
+#max, mean dive duration
+#max, mean dive depth
+#seal age
+#seal mass
+#seal fatness ratio (axillary girth/straight length) 
+#number previous pups
+#pup age
+#date tagged
+
+#We want to compute the correlation between >50 dives and pup age first
+# Visualize data using scatter plots
+
+library("ggpubr")
+ggscatter(d1, x = "pup_age", y = "dives_50m", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Pup age (days)", ylab = "Dives deeper than 50 m")
+#p value = 0.0064
+#R value = 0.53
+
+ggscatter(d1, x = "pup_age", y = "dives_all", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Pup age (days)", ylab = "Dives deeper than 10 m")
+#p value = 0.00033
+#R value = 0.66
+
+#test for normality 
+
+# Shapiro-Wilk normality test for mpg
+#shapiro.test(my_data$mpg) # => p = 0.1229
+# Shapiro-Wilk normality test for wt
+#shapiro.test(my_data$wt) # => p = 0.09
+
+# Shapiro-Wilk normality test
+shapiro.test(d1$pup_age) # => p = 0.03424 
+shapiro.test(d1$dives_10m) # => p = <0.00001 
+shapiro.test(d1$dives_50m) # => p = <0.00001
+shapiro.test(d1$mass) # => p = <0.01 
+shapiro.test(d1$day_month) # => p = factor - need to use julian days 
+shapiro.test(d1$julian_day) #=> p = 0.052 
+shapiro.test(d1$num_pups) # => p = <0.002 
+shapiro.test(d1$min_mum_age) # => p = <0.02 
+
+shapiro.test(d1$fatness) # => p = <0.19 
+
+#next test is the Q-Q plots
+
+ggqqplot(d1$pup_age, ylab = "pup age")
+ggqqplot(d1$dives_50m, ylab = "num 50 m dives")
+ggqqplot(d1$dives_10m, ylab = "10 m dives")
+ggqqplot(d1$mass, ylab = "mass")
+ggqqplot(d1$julian_day, ylab = "julian date")
+ggqqplot(d1$num_pups, ylab = "num prev pups")
+ggqqplot(d1$min_mum_age, ylab = "mum age")
+ggqqplot(d1$fatness, ylab = "fatness")
+
+#choose to investigate correlation using Spearman's ranked
+
+#Spearman rank correlation coefficient
+#Spearman’s rho statistic is also used to estimate a rank-based measure of association. 
+#This test may be used if the data do not come from a bivariate normal distribution.
+
+#### PUP AGE ####
+##10m dives - all dives deeper than 10m ranked
+#age of females pup ranked
+
+cor.test(d1$norm_allrank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+#Spearman's rank correlation rho
+
+#data:  d1$norm_allrank and d1$pupage_ranked
+#S = 1007.2, p-value = 0.001132
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#      rho 
+#0.6126146 
+
+library("ggpubr")
+ggscatter(d1, x = "pup_age", y = "norm_allrank", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Pup age (days)", ylab = "Dives deeper than 10 m")
+
+#rho is the Spearman's correlation coefficient
+
+#Interpret correlation coefficient
+#Correlation coefficient is comprised between -1 and 1:
+#  -1 indicates a strong negative correlation : this means that every time x increases, y decreases (left panel figure)
+#   0 means that there is no association between the two variables (x and y) (middle panel figure)
+#   1 indicates a strong positive correlation : this means that y increases with x (right panel figure)
+
+##50 m dives
+#testing all dives deeper than 50m against age of females pup
+cor.test(d1$norm_deeprank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+##shallow dives >= 50m
+#testing all dives between 10m and 50m against age of females pup
+cor.test(d1$norm_shallrank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+## Mum mass
+t3 <- cor.test(d1$mass_ranked, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+##Mum fatness
+t4 <- cor.test(d1$fatness_ranked, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+## day-month
+t5 <- cor.test(d1$daymonth_ranked, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+#### all dives####
+names(d1)
+"mass_ranked" #seal mass
+"daymonth_ranked" #date tagged
+"fatness_ranked" #fatness ratio (ax girth/str length
+"minage_ranked"  #seal minimum age
+"pupage_ranked" #pup age
+"numpups_ranked" #number previous pups
+"norm_allrank"  #standardised number of all dives completed (dives/hr)
+
+##pup age
+cor.test(d1$norm_allrank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+##mum mass
+cor.test(d1$norm_allrank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+
+##day month 
+cor.test(d1$norm_allrank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+
+##fatness
+cor.test(d1$norm_allrank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+
+##mum age
+cor.test(d1$norm_allrank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+
+#num pups
+cor.test(d1$norm_allrank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+#### deep dives####
+names(d1)
+"mass_ranked" #seal mass
+"daymonth_ranked" #date tagged
+"fatness_ranked" #fatness ratio (ax girth/str length
+"minage_ranked"  #seal minimum age
+"pupage_ranked" #pup age
+"numpups_ranked" #number previous pups
+"norm_deeprank"  #standardised number of deep dives completed greater than 50m (dives/hr)
+
+##pup age
+cor.test(d1$norm_deeprank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+##mum mass"norm_deeprank" 
+cor.test(d1$norm_deeprank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+
+##day month 
+ cor.test(d1$norm_deeprank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+
+##fatness
+cor.test(d1$norm_deeprank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+
+##mum age
+cor.test(d1$norm_deeprank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+
+#num pups
+cor.test(d1$norm_deeprank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+#### shallow dives####
+names(d1)
+"mass_ranked" 
+"daymonth_ranked"
+"fatness_ranked"
+"minage_ranked" 
+"pupage_ranked"
+"numpups_ranked"
+"norm_shallrank" #standardised shallow dives completed, greater than 10m, less than 50m (dives/hr)
+
+##pup age
+cor.test(d1$norm_shallrank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+
+##mum mass
+cor.test(d1$norm_shallrank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+
+##day month 
+cor.test(d1$norm_shallrank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+
+##fatness
+cor.test(d1$norm_shallrank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+
+##mum age
+cor.test(d1$norm_shallrank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+
+#num pups
+ cor.test(d1$norm_shallrank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+####depth duration mean max etc ####
+#   "maxdep_rank"     "meandep_rank"   
+#   "maxdur_rank"     "meandur_rank"   
+
+#against 
+
+#"mass_ranked"    "daymonth_ranked" "fatness_ranked" "minage_ranked"     "pupage_ranked"     "numpups_ranked"  
+
+#depth
+cor.test(d1$maxdep_rank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdep_rank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdep_rank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdep_rank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdep_rank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdep_rank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+cor.test(d1$meandep_rank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandep_rank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandep_rank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandep_rank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandep_rank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandep_rank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+#duration
+#   "maxdur_rank"     "meandur_rank"   
+
+cor.test(d1$maxdur_rank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdur_rank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdur_rank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdur_rank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdur_rank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$maxdur_rank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+cor.test(d1$meandur_rank, d1$daymonth_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandur_rank, d1$mass_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandur_rank, d1$fatness_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandur_rank, d1$minage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandur_rank, d1$pupage_ranked,  method = "spearman", exact = FALSE)
+cor.test(d1$meandur_rank, d1$numpups_ranked,  method = "spearman", exact = FALSE)
+
+####T.tests####
+#t.test for metadata between foraging groups
+#asks is there a significant difference between foragers and non foragers
+
+#we have:
+#non foragers 9
+#foragers 17
+#all 26
+
+setwd("D:/WEDE ANALYSIS/WESE_chapter2")
+#importing file that has data for each seal 
+#foraging status
+#pup age 
+#mass
+#fatness
+#age minimum
+#previous pups
+#behaviour times from BORIS
+
+data <- read.csv("D:/WEDE ANALYSIS/WESE_chapter2/t-test.csv", sep = ",", dec = ".", skip = 0)
+non_forager <- subset(data, group == "Non-forager", select = c("pup_age", "mass", "age_min",
+                                                               "prev_pup", "fatness", "Searching", "Pup", 
+                                                               "Resting", "Aggression", 'swimming'))
+forager <- subset(data, group == "Forager", select = c("pup_age", "mass", "age_min",
+                                                           "prev_pup", "fatness","Searching", "Pup", 
+                                                       "Resting", "Aggression", 'swimming'))
+#one or two tailed? 
+#can look in either direction on the bell curve for the answer
+
+#our data has two tails: Testing whether foragers have older or younger pups than non foragers 
+#is there a significant difference between the pup ages of foragers and non foragers
+#our data is unpaired
+
+t.test(forager$pup_age, non_forager$pup_age, alternative = 
+       "two.sided", paired = FALSE )
+
+t.test(forager$mass, non_forager$mass, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$prev_pup, non_forager$prev_pup, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$fatness, non_forager$fatness, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$age_min, non_forager$age_min, alternative = 
+         "two.sided", paired = FALSE )
+
+####now test for BORIS behaviours####
+#- differences between groups
+#time each seal spent displaying behaviour quantified in BORIS
+
+t.test(forager$Searching, non_forager$Searching, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$Pup, non_forager$Pup, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$Resting, non_forager$Resting, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$Aggression, non_forager$Aggression, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(forager$swimming, non_forager$swimming, alternative = 
+         "two.sided", paired = FALSE )
+
+# only searching significantly different between two groups
+
+####unsuccessful and successful foragers####
+suc_forager <- subset(data, success == "Successful", select = c("pup_age", "mass", "age_min",
+                                                               "prev_pup", "fatness", "Searching", "Pup", 
+                                                               "Resting", "Aggression", 'swimming'))
+unsuc_forager <- subset(data, success == "Unsuccessful", select = c("pup_age", "mass", "age_min",
+                                                       "prev_pup", "fatness","Searching", "Pup", 
+                                                       "Resting", "Aggression", 'swimming'))
+
+t.test(suc_forager$pup_age, unsuc_forager$pup_age, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$mass, unsuc_forager$mass, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$prev_pup, unsuc_forager$prev_pup, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$fatness, unsuc_forager$fatness, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$age_min, unsuc_forager$age_min, alternative = 
+         "two.sided", paired = FALSE )
+
+#BORIS behaviours ####
+#differences between foraging groups
+
+t.test(suc_forager$Searching, unsuc_forager$Searching, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$Pup, unsuc_forager$Pup, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$Resting, unsuc_forager$Resting, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$Aggression, unsuc_forager$Aggression, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(suc_forager$swimming, unsuc_forager$swimming, alternative = 
+         "two.sided", paired = FALSE )
+
+####diving behaviour 2018 v 2019####
+#did seals tagged in 2019 dive more often that seals tagged in 2018
+#year vs dives
+
+seals2018 <- subset(data, year == "2018", select = c("pup_age", "mass", "age_min",
+                                                                "prev_pup", "fatness", "Searching", "Pup", 
+                                                                "Resting", "Aggression", 'swimming', "dives", 
+                                                     "dive_standard"))
+seals2019 <- subset(data, year == "2019", select = c("pup_age", "mass", "age_min",
+                                                                    "prev_pup", "fatness","Searching", "Pup", 
+                                                                    "Resting", "Aggression", 'swimming', "dives", 
+                                                     "dive_standard"))
+
+t.test(seals2018$pup_age, seals2019$pup_age, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(seals2018$dives, seals2019$dives, alternative = 
+         "two.sided", paired = FALSE )
+
+t.test(seals2018$dive_standard, seals2019$dive_standard, alternative = 
+         "two.sided", paired = FALSE )

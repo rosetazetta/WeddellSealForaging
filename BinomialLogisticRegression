@@ -1,0 +1,215 @@
+###Binomial logistic regression 
+
+##Testing foraging status against seal body condition/demographics 
+
+
+setwd("")
+WESE <- read.csv("WESE_summarydata_30-08-23.csv")
+WESE$seal_id <- factor(WESE$seal_id)
+WESE$location <- factor(WESE$location)
+WESE$forager_class <- factor(WESE$forager_class)
+WESE$lactation_stage <- factor(WESE$lactation_stage)
+WESE$year <- factor(WESE$year)
+
+seals2018 <- subset(WESE, year == "2018", select = c("TDR_length_hrs", "mass_kg", "fatness", "age_mum",  "age_pup",  "prev_pups", "DOY", "year", "forager_class","forager_01",'location', 'str_length'))
+
+foragers <- subset(WESE, forager_01 == 1, select = c("mass_kg", "fatness", "age_mum",  "age_pup", "prev_pups", "DOY",  "forager_class", "foraging_bouts", "location", "all_dives", "deep_dives", "hours_active", 'str_length', "year"))
+
+library(dplyr)
+library(car)
+library(corrplot)
+library(MuMIn)
+library(ggplot2)
+library(lme4)
+
+#run correlation analysis
+predictors <- subset(WESE, select = c("mass_kg", "fatness", "age_mum", "age_pup", "prev_pups", "DOY", "str_length"))
+cor(predictors)
+corrplot(cor(predictors, use = 'complete.obs'))
+#mass_kg age_pup and DOY are all correlated
+
+#data set includes:
+#response: binary values, 0 - non forager, 1 - forager
+#predictors: age_pup ; prev_pups (4 NAs) ; fatness ; mass_kg ; location ; DOY
+
+#scale variables so they are comparable
+#Only using 2018 seals n = 18
+
+#Two model types: glmer w location as random effect and glm 
+
+#Note: year couldn't be included as random effect due to lack of variation - 7/8 seals foraged 
+
+#test correlations and vif values to determine variables to exclude
+m1_mixed <- glmer(forager_01 ~ scale(mass_kg) + scale(fatness) + 
+                    scale(age_pup) + scale(DOY) + scale(str_length)
+                  + (1 | location),  data = seals2018, family = binomial())
+vif(m1_mixed)
+
+#removed prev pups
+#removed str length and DOY and mass
+m1_mixed <- glmer(forager_01 ~ scale(fatness) + scale(age_pup)
+                     + (1 | location), 
+                  data = seals2018, family = binomial())
+vif(m1_mixed)
+
+
+#interactions
+m1_mixed_int <- glmer(forager_01 ~ scale(fatness)*scale(age_pup) + (1 | location), 
+                  data = seals2018, family = binomial())
+summary(m1_mixed_int)
+
+m1_notmixed_int <- glm(forager_01 ~ scale(fatness)*scale(age_pup), 
+                     data = seals2018, family = binomial())
+summary(m1_notmixed_int)
+
+#interaction not important
+
+#all variables remaining:
+m1_mixed_a <- glmer(forager_01 ~ scale(fatness) + scale(age_pup) + (1 | location), 
+                  data = seals2018, family = binomial())
+vif(m1_mixed)
+summary(m1_mixed_a)
+
+#fatness only
+m1_mixed_b <- glmer(forager_01 ~ scale(fatness) + (1 | location), 
+                  data = seals2018, family = binomial())
+summary(m1_mixed_b)
+
+#pup age only
+m1_mixed_c <- glmer(forager_01 ~ scale(age_pup) + (1 | location), 
+                  data = seals2018, family = binomial())
+summary(m1_mixed_c)
+
+m1_mixed_null <- glmer(forager_01 ~ 1 + (1 | location), 
+                    data = seals2018, family = binomial())
+summary(m1_mixed_null)
+
+anova(m1_mixed_a, m1_mixed_b, m1_mixed_c)
+
+#non mixed models without location included
+m1_notmixed_a <- glm(forager_01 ~ scale(fatness) + scale(age_pup), 
+                  data = seals2018, family = binomial())
+vif(m1_notmixed_a)
+summary(m1_notmixed_a)
+
+#fatness only
+m1_notmixed_b <- glm(forager_01 ~ scale(fatness), 
+                  data = seals2018, family = binomial())
+summary(m1_notmixed_b)
+
+#pup age only
+m1_notmixed_c <- glm(forager_01 ~ scale(age_pup), 
+                     data = seals2018, family = binomial())
+summary(m1_notmixed_c)
+
+m1_notmixed_null <- glm(forager_01 ~ 1, 
+                     data = seals2018, family = binomial())
+summary(m1_notmixed_null)
+
+#assessing model performance:
+notmixedAICc <- c(29.5431,   27.4500,  27.2033,  24.8217)
+mixedAICc <- c(30.9458, 30.7684,  28.4951,  27.7360)
+akaike.weights(notmixedAICc)
+akaike.weights(mixedAICc)
+
+
+##Plotting figures: 
+
+WESE$year <- as.factor(WESE$year)
+WESE2 <- subset(WESE, year == 2018 | year == 2019)
+
+plot1 <- ggplot(seals2018, aes(x = age_pup, y = forager_01)) + 
+  geom_point(aes(fill = 'black')) +
+  stat_smooth(method="glm", color="black", se=TRUE,
+              method.args = list(family=binomial)) +
+  ylab("")+
+  xlab("Pup Age (days)") +
+  theme_minimal() +
+  theme(panel.grid.major = element_line(linewidth=0.3,colour="grey", linetype = "dashed"))+
+  theme(legend.position = "none") +
+  annotate(geom = "text", parse = TRUE, label = 'paste(italic("n"), " = 18")',
+           x = 19, y = 0.85, size = 4) +
+  annotate(geom = "text", label = "Est. = 1.21 ± 0.6 SD \n  z-val = 1.97, p-val <0.05", 
+           x = 27, y = 0.14, size = 3.7)
+
+plot2 <-  ggplot(WESE2, aes(x = age_pup, y = forager_01, col = year)) + 
+  geom_point() +
+  stat_smooth(method="glm", color="black", se=TRUE,
+              method.args = list(family=binomial)) +
+  ylab("Foraging Probability")+
+  xlab("Pup Age (days)") +
+  theme_minimal() +
+  theme(panel.grid.major = element_line(linewidth=0.3,colour="grey", 
+                                        linetype = "dashed"))+
+  scale_color_manual(values = c("black","red", "white"), name = "Year",
+                    labels = c("2018", "2019", "") ) +
+  annotate(geom = "text", parse = TRUE, label = 'paste(italic("n"), " = 26")', 
+           x = 19, y = 0.85, size = 4)
+
+library(ggpubr)
+plot3 <- ggarrange(plot2, plot1,
+          labels = c("a", "b"),
+          ncol = 2, nrow = 1, 
+          common.legend = TRUE, 
+          legend = 'right')  
+print(plot3)
+
+#save plots: 
+ggsave("Forager01_combined.png",plot = plot3,
+       scale = 1, width = 7, height = 4, units = c("in"), dpi = 500)
+
+
+##location plot 
+
+#plot for locations vs forager status
+loc <- subset(WESE, select = c("seal_id", "location", "forager_01", "lactation_01", "year"))
+loc$forager_01 <- factor(loc$forager_01)
+prop.table(table(loc$forager_01, loc$location))
+
+library(dplyr)
+percent <- loc %>% 
+  group_by(location) %>% 
+  summarise(NumSeals=n(),prop_foraged=sum(forager_01==1)/n())
+percent2 <- loc %>% 
+  group_by(location) %>% 
+  summarise(NumSeals=n(),prop_midlact=sum(lactation_01==1)/n())
+
+percents <- merge(percent, percent2, by = c("location", "NumSeals"))
+colnames(percents) <- c("Location", "TotalSeals", "Pct_Foraged", "Pct_Mid-lact")
+percents$TotalSeals = NULL
+
+percents
+library(reshape2)
+fixed <- melt(percents)
+#plot(percents$Location, percents$Pct_Foraged)
+
+fixed
+
+positions <- c("Tent Island", "Big Razorback", "Hutton Cliffs", 
+               "North Base", "Pram Point", "Turks Head")
+totalseals <- c("n = 6","n = 7","n = 4","n = 4","n = 2","n = 3")
+
+plot4 <- ggplot(fixed, aes(fill = variable, y = value, x = Location)) + 
+  geom_bar(position="dodge", stat="identity", width = 0.5)+
+  theme_minimal() +
+  ylab("Proportion of seals tagged at each location")+
+  xlab("Location") +
+  scale_x_discrete(limits = positions) +
+  scale_fill_manual(values = c("#56B4E9","#0072B2"), name = "Status",
+                    labels = c("Forager", "Pup age ≥20 days") ) +
+  annotate(geom = "text", label = "n = 6", x = 1, y = 0.35, size = 3.5)+
+  annotate(geom = "text", label = "n = 7", x = 2, y = 0.735, size = 3.5)+
+  annotate(geom = "text", label = "n = 4", x = 3, y = 0.77, size = 3.5)+
+  annotate(geom = "text", label = "n = 4", x = 4, y = 1.02, size = 3.5)+
+  annotate(geom = "text", label = "n = 2", x = 5, y = 1.02, size = 3.5)+
+  annotate(geom = "text", label = "n = 3", x = 6, y = 1.02, size = 3.5) +
+#  theme(aspect.ratio = 2/1.7) +
+  theme(legend.position = c(.09, .94),
+        legend.justification = c("left", "top")
+        ,legend.box.background = element_rect(colour = "black", fill = "NA"))
+print(plot4)
+
+setwd("")
+ggsave("location_plot.png", plot = plot4,
+       scale = 1, width = 5.5, height = 6, units = c("in"), dpi = 400)
+
